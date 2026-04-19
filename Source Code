@@ -1,0 +1,47 @@
+module pipelined_proc(
+    input clk,
+    input rst,
+    output reg [31:0] final_result
+);
+    // Instruction Memory (Simplified)
+    reg [31:0] imem [0:31];
+    reg [31:0] pc;
+    
+    // Pipeline Registers
+    // IF/ID
+    reg [31:0] instrD;
+    // ID/EX
+    reg [31:0] aE, bE;
+    reg [1:0]  aluOpE;
+    // EX/WB
+    reg [31:0] resultW;
+
+    // --- 1. FETCH STAGE ---
+    always @(posedge clk or posedge rst) begin
+        if (rst) pc <= 0;
+        else pc <= pc + 1;
+        instrD <= imem[pc[4:0]]; // Fetch
+    end
+
+    // --- 2. DECODE STAGE ---
+    always @(posedge clk) begin
+        // Simple decoding: instr[31:26] op, instr[25:21] rs, etc.
+        aE <= 10; // Dummy operand 1
+        bE <= 20; // Dummy operand 2
+        aluOpE <= instrD[27:26]; // Simplified Op
+    end
+
+    // --- 3. EXECUTE STAGE ---
+    always @(posedge clk) begin
+        case (aluOpE)
+            2'b00: resultW <= aE + bE; // ADD
+            2'b01: resultW <= aE - bE; // SUB
+            default: resultW <= 0;
+        endcase
+    end
+
+    // --- 4. WRITEBACK STAGE ---
+    always @(posedge clk) begin
+        final_result <= resultW;
+    end
+endmodule
