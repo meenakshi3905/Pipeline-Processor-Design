@@ -1,0 +1,16 @@
+module tb();
+    reg clk;
+    reg rst;
+    wire [31:0] result;
+
+    pipelined_proc uut(clk, rst, result);
+
+    always #5 clk = ~clk;
+
+    initial begin
+        $dumpfile("dump.vcd"); $dumpvars(1, uut);
+        clk = 0; rst = 1;
+        #10 rst = 0;
+        #100 $finish;
+    end
+endmodule
